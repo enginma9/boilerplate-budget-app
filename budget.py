@@ -62,41 +62,78 @@ class Category:
     if (self.get_balance() >= amount):
       return True
     return False
-  def total_withdrawals():
+  # end check_funds  
+  def total_withdrawals(self):
+    withdrawals = 0
     for item in self.ledger:
       if item['amount'] < 0:
-        total_withdrawals += item['amount']
-    return total_withdrawals
-#end class Category
+        withdrawals += item['amount']
+    return withdrawals
+# end class Category
 
 def create_spend_chart(categories):
   chart = list()
   bubbles = list()
   bubbles.append("   ") # bubbles[0] false
   bubbles.append(" o ") # bubbles[1] true
-  # stays outside of class
-  # takes the list of categories and returns a string that is a bar chart
-  # Bar Chart
-  # title at the top that says "Percentage spent by category".
-  # Shows percent of
-  # This function will be tested with up to four categories.
-  #chart[0] = "Percentage spent by category")
-  chart.append("Percentage spent by category\n")
-  #chart[1] = "100|"
-  #chart[2] = " 90|"  # etc
-
-  # spaces between categories are always 2
-  # " " + character + " ", then extra space before "\n"
-  # 14 wide for 3 categories:
-  # 3 for left side
-  # 1 for "|"
-  # 9 (3*3) for bubbles " o "
-  # 1 " " before the "\n"
-  # Letters will need to be lined up with bubbles, so
-  # 4 empty spaces before the first, then
-  # " " + char + " ", each item, then trailing " \n"
-  # 4,3*x,
-  # Is this a percentage of all expenditures or a percentage of available income?
-  #
-  # Final space of last line is not part of \n, it is still there on last line
-  # only as many vertical lines as chart + length of longest word
+  #Set up chart base
+  chart.append("Percentage spent by category") #0
+  chart.append("100|")#1
+  chart.append(" 90|")#2
+  chart.append(" 80|")#3
+  chart.append(" 70|")#4
+  chart.append(" 60|")#5
+  chart.append(" 50|")#6
+  chart.append(" 40|")#7
+  chart.append(" 30|")#8
+  chart.append(" 20|")#9
+  chart.append(" 10|")#10
+  chart.append("  0|")#11
+  chart.append("    ") #12 line for dashes
+  # Get longest name, and put in dashes
+  longest=0
+  names = list()
+  combined_withdrawals = 0
+  for category in categories:
+    names.append(category.name)
+    if len(category.name) > longest:
+      longest = len(category.name)
+    # end if
+    chart[12] += "---"
+    
+    combined_withdrawals += category.total_withdrawals()
+  # end for
+  # iterate through to create space for letters of the names 
+  #print(combined_withdrawals)
+  #print( longest)
+  for i in range(longest):
+    chart.append("    ") #13..longest title.length()
+    #print(longest)
+    # Build bottom
+    for name in names:
+      if i >= len(name):
+        chart[i+13] += "   "
+      else:
+        chart[i+13] += " " + name[i] + " "
+      # end for name
+  # end for i
+  percentages = list()
+  for i in range(len(categories)):
+    percentages.append( int( 10 * categories[i].total_withdrawals() / combined_withdrawals ))
+    for x in range(11):
+      if 10 - x > percentages[i]:
+        # add bubble[0/1] to this line
+        chart[x+1] += bubbles[0]
+      else:
+        chart[x+1] += bubbles[1]
+  for i in range(len(chart)):
+    if i == 12:
+      chart[i] += "-"
+    elif i == 0:
+      continue          
+    else:
+      chart[i] += " "
+    print(chart[i])
+    # Return with newlines in string
+  print("\n".join(chart))
+  return "\n".join(chart)
